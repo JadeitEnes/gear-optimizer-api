@@ -1,17 +1,6 @@
+from sqlalchemy.orm import Session
+from app.database.models import CPU, GPU, RAM, Resolution
 from app.schemas.gear_schema import GearInput, GearOutput
-
-CPU_SCORES = {
-    "intel":40,
-    "amd":38,
-
-}
-
-
-GPU_SCORES = {
-    "nvidia":30,
-    "amd":25,
-    "intel":15,
-}
 
 USAGE_ADVICE = {
     "gaming": "Yüksek frekanslı RAM ve güçlü GPU önceliğiniz olmalı.",
@@ -19,15 +8,20 @@ USAGE_ADVICE = {
     "software_development": "Hızlı SSD ve 16GB+ RAM geliştirme deneyimini doğrudan etkiler.",
 }
 
-def calculate_gear_score(gear:GearInput) -> GearOutput:
-    cpu_score = CPU_SCORES.get(gear.cpu_brand.lower(),30)
-    ram_score = min(gear.ram_gb,64)// 4
-    gpu_score = 0
-    if gear.gpu_brand:
-        gpu_score=GPU_SCORES.get(gear.gpu_brand.lower(),10)
-    core_score = min(gear.cpu_cores * 2, 20)    # Scoring Logic: 2 points per core, max 20 points.
-    total_score = cpu_score + ram_score + gpu_score + core_score
+def calculate_gear_score(gear: GearInput, db: Session) -> GearOutput:
+    cpu = db.query(CPU).filter(CPU.id == gear.cpu_id).first()
+    gpu = db.query(GPU).filter(GPU.id == gear.gpu_id).first()
+    ram = db.query(RAM).filter(RAM.id == gear.ram_id).first()
+    resolution = db.query(Resolution).filter(Resolution.id == gear.resolution_id).first()
 
+    if not all([cpu, gpu, ram, resolution]):
+        raise ValueError("Geçersiz ID.")
+    
+    gpu_score_adjusted = int(gpu.score / resolution.demand_multiplier)
+
+    total_score = int((cpu.score + gpu_score_adjusted + ram.score ) / 3)
+
+    
     if total_score >= 80:
         level = "Profesyonel"
     elif total_score >= 60:
@@ -38,18 +32,23 @@ def calculate_gear_score(gear:GearInput) -> GearOutput:
         level = "Giriş Seviye"    
     advice = USAGE_ADVICE.get(
         gear.usage_purpose.lower(),
-        "Kullanım amacınıza özel tavsiye için geçerli bir amaç yazınız."
+        "Sistemin kullanım amacını giriniz."
     )
     detail = {
-        "cpu_score": cpu_score,
-        "ram_score": ram_score,
-        "gpu_score": gpu_score,
-        "core_score": core_score,
+        "cpu": f"{cpu.brand} {cpu.model}",
+        "cpu_score": cpu.score,
+        "gpu": f"{gpu.brand} {gpu.model}",
+        "gpu_score_raw": gpu.score,
+        "gpu_score_adjusted": gpu_score_adjusted,
+        "ram": f"{ram.capacity_gb}GB {ram.speed_mhz}MHz",
+        "ram_score": ram.score,
+        "resolution": resolution.name,
+        "demand_multiplier": resolution.demand_multiplier,
     }
 
     return GearOutput(
-        score = total_score,
-        level = level,
-        advice = advice,
-        detail = detail,
+        score=total_score,
+        level=level,
+        advice=advice,
+        detail=detail,
     )
