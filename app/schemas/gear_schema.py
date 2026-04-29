@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field
 from typing import Optional
+from app.enums import UsagePurpose
 
 class GearInput(BaseModel):
     cpu_id: int = Field(..., title="CPU", description="CPU ID seçin")
     gpu_id: int = Field(..., title="GPU", description="GPU ID seçin")
     ram_id: int = Field(..., title="RAM", description="RAM ID seçin")
     resolution_id: int = Field(..., title="Çözünürlük", description="Çözünürlük ID")
-    usage_purpose: str = Field(..., title="Kullanım Amacı", description="oyun, video düzenleme, yazılım geliştirme")
+    usage_purpose: UsagePurpose = Field(..., title="Kullanım Amacı")
 
 class GearOutput(BaseModel):
     score:int = Field(..., title="Performans Skoru")

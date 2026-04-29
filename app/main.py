@@ -1,3 +1,4 @@
+import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from app.routers import optimizer, hardware
@@ -5,18 +6,29 @@ from app.database.database import engine
 from app.database.models import Base
 from app.database.seed import seed_data
 from contextlib import asynccontextmanager
+from app.config import get_settings
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s — %(name)s — %(levelname)s — %(message)s"
+)
+
+logger = logging.getLogger(__name__)
+settings = get_settings()
 
 Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logger.info(f"Starting {settings.app_name} v{settings.app_version}")
     seed_data()
+    logger.info("Application ready")
     yield
 
 app = FastAPI(
-    title = "GearOptimizer API",
+    title = settings.app_name,
     description = "Donanım ve performans optimizasyon API'si",
-    version = "2.0.0",
+    version = settings.app_version,
     lifespan = lifespan
 )
 
@@ -33,6 +45,10 @@ app.include_router(optimizer.router)
 app.include_router(hardware.router)
 
 @app.get("/")
-def root():
-    return {"message":"GearOptimizer API v2.0 is running"}
+def root() -> dict:
+    return {
+        "app": settings.app_name,
+        "version": settings.app_version,
+        "status": "running"
+    }
 
