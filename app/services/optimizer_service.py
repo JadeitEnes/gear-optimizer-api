@@ -28,12 +28,12 @@ class OptimizerService:
         ram = self.repository.get_ram_by_id(gear.ram_id)
         resolution = self.repository.get_resolution_by_id(gear.resolution_id)
 
-        self._validate_components(cpu, gpu, ram, resolution)
+        self._validate_component(cpu, gpu, ram, resolution)
 
         gpu_score_adjusted = int(gpu.score / resolution.demand_multiplier)
 
         total_score = int((cpu.score + gpu_score_adjusted + ram.score ) / 3)
-        level = self.calculate_level(total_score)
+        level = self._calculate_level(total_score)
         advice = USAGE_ADVICE.get(
             gear.usage_purpose,
             " Kullanım amacınızı giriniz."

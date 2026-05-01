@@ -1,6 +1,8 @@
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.routers import optimizer, hardware
 from app.database.database import engine
 from app.database.models import Base
@@ -43,6 +45,11 @@ app.add_middleware(
 
 app.include_router(optimizer.router)
 app.include_router(hardware.router)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+@app.get("/ui")
+def serve_ui() -> FileResponse:
+    return FileResponse("static/index.html")
 
 @app.get("/")
 def root() -> dict:

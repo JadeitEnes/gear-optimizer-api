@@ -26,6 +26,6 @@ def get_gpus(db: Session = Depends (get_db)) -> List [GPU]:
 def get_rams(db: Session = Depends (get_db)) -> List[RAM]:
     return HardwareRepository(db).get_all_rams()
 
-@router.get("/resolution", response_model=List[ResolutionResponse])
+@router.get("/resolutions", response_model=List[ResolutionResponse])
 def get_resolutions(db: Session = Depends (get_db)) -> List[Resolution]:
     return HardwareRepository(db).get_all_resolutions()

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gear Optimizer</title>
+    <link rel="icon" type="image/png" href="/static/GearOptimizer.png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css"/>
+
+</head>
+<body>
+
+    <div class="bg-watermark"> </div>  
+   
+
+    <header>
+        <img src="/static/GearOptimizer.png" class="header-logo" alt="logo">
+        <div class="header-text">
+            <h1>GEAR <span>OPTIMIZER</span></h1>
+            <p class="header-sub">//Hardware Performance Analyzer</p>
+        </div>
+    </header>
+
+    <main>
+        <div class="panel">
+            <div class="panel-title">[ SYSTEM CONFIGURATION ]</div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label>> CPU_SELECT:</label>
+                    <select  id="cpu-select"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label>> GPU_SELECT:</label>
+                    <select  id="gpu-select"><option value="">-LOADING-</option></select>
+                </div>
+                <div class="field">
+                    <label>> RAM_SELECT:</label>
+                    <select  id="ram-select"><option value="">-LOADING-</option></select>
+                </div>
+                <div class="field">
+                    <label>> RESOLUTION:</label>
+                    <select  id="resolution-select"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label>> USAGE_PURPOSE</label>
+                    <select  id="purpose-select">
+                        <option value="gaming">-GAMING-</option>
+                        <option value="video_editing">-EDITING-</option>
+                        <option value="software_development">-SOFTWARE DEV.-</option>
+                    </select>
+                </div>
+             </div>
+        
+
+        <button id="analyze-btn">> RUN ANALYSIS [ ENTER ]</button>
+      </div>
+
+      <div class="panel result-panel" id="result" style="display: none;">
+        <div class="panel-title"> [ ANALYSIS RESULT ]</div>
+        <div class="score-line">
+            PERFORMANCE SCORE: <span id="score-value">0</span>/100
+        </div>
+        <div class="level-line">
+            SYSTEM LEVEL: <span id="score-level"></span>
+        </div>
+        <div class="advice-line">
+            RECOMMENDATION: <span id="advice"></span>
+        </div>
+        <div class="detail-block" id="detail-grid"></div>
+      </div>
+    </main>
+
+    <footer>
+        <p> // GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL </p>
+     </footer>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>

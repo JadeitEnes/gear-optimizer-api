@@ -6,7 +6,7 @@ class GearInput(BaseModel):
     cpu_id: int = Field(..., title="CPU", description="CPU ID seçin")
     gpu_id: int = Field(..., title="GPU", description="GPU ID seçin")
     ram_id: int = Field(..., title="RAM", description="RAM ID seçin")
-    resolution_id: int = Field(..., title="Çözünürlük", description="Çözünürlük ID")
+    resolution_id: int = Field(..., title="Resolution", description="Çözünürlük ID")
     usage_purpose: UsagePurpose = Field(..., title="Kullanım Amacı")
 
 class GearOutput(BaseModel):

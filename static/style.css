@@ -1,0 +1,236 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+    font-family: 'Share Tech Mono', monospace;
+    background-color: rgb(3, 46, 40);
+    color: rgb(255, 255, 255);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.bg-watermark {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-image: url('/static/GearOptimizer.png');
+    background-size: 40px;
+    background-repeat: repeat;
+    opacity: 0.03;
+    pointer-events: none;
+    transform: rotate(-30deg) scale(2);
+}
+
+
+
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg);}
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+header{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 48px;
+    border-bottom: 1px solid rgb(6, 135, 32) ;
+}
+
+.header-logo {
+    width: 56px;
+    height: 56px;
+}
+
+.header-text h1 {
+    font-size: 28px;
+    letter-spacing: 0.3em;
+    color: rgb(204, 204, 204);
+}
+
+.header-text h1 span {
+    color: rgb(63, 147, 180);
+}
+
+.header-sub {
+    font-size: 12px;
+    color: rgb(149, 201, 207);
+    letter-spacing: 0.20em;
+    margin-top: 3px;
+}
+
+main {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.panel {
+    background: rgba(4, 36, 59, 0.8);
+    border: 2px solid rgb(0, 61, 102);
+    padding: 32px;
+}
+
+.panel-title {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: #affcf7;
+    margin-bottom: 28px;
+    border-bottom: 2px solid rgb(58, 84, 101);
+    padding-bottom: 12px;
+}
+
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-size: 14px;
+    color: rgb(0, 255, 94);
+    letter-spacing: 0.1em;
+}
+
+.field select {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    background-color: #03052d;
+    color: #ffffff;
+    border: 1px solid #094871;
+    padding: 10px 14px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+
+}
+
+.field select:focus {
+    border-color: rgb(81, 186, 255);
+}
+
+.field select option {
+    background: rgb(2, 11, 2);
+    color: rgb(255, 255, 255);
+}
+
+#analyze-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    background: transparent;
+    color: rgb(255, 169, 40);
+    border: 1px solid rgb(27, 164, 255);
+    padding: 10px 32px;
+    cursor: pointer;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+#analyze-btn:hover {
+  background: rgb(48, 115, 160);
+  color: rgb(255, 222, 35);
+}
+
+.result-panel {
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.score-line {
+    font-size: 22px;
+    color: white;
+    margin-bottom: 12px;
+    letter-spacing: 0.1em;
+}
+
+.score-line span {
+    color: rgb(0, 192, 10);
+    font-size: 32px;
+}
+
+.level-line {
+    font-size: 14px;
+    color: rgb(255, 255, 255);
+    margin-bottom: 10px;
+    letter-spacing: 0.1em;
+}
+
+.level-line span {
+    color: white;
+}
+
+.advice-line {
+    font-size: 12px;
+    color: yellow;
+    margin-bottom: 24px;
+    line-height: 1.6;
+    letter-spacing: 0.05em;
+}
+
+.advice-line span {
+    color: rgb(255, 236, 194);
+}
+
+.detail-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgb(0, 195, 255);
+    padding-top: 16px;
+    font-size: 12px;
+    color: aqua;
+    letter-spacing: 0.08em;
+}
+
+.detail-block p {
+    display: flex;
+    justify-content: space-between;
+}
+
+.detail-block span {
+    color: rgb(255, 255, 255);
+}
+
+footer {
+    position: relative;
+    z-index: 1;
+    text-align: left;
+    padding: 16px;
+    font-size: 12px;
+    color: rgb(0, 141, 0);
+    letter-spacing: 0.10em;
+    background: rgba(7, 28, 20, 0.5);
+}
