@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     database_url: str
     secret_key: str = "default_secret"
     app_name: str = "GearOptimizer API"
-    app_version: str = "2.0.0"
+    app_version: str = "3.0.0"
     debug: bool = False
 
     class Config:

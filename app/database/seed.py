@@ -17,6 +17,7 @@ def seed_data():
         CPU(brand="Intel", model="Core i5-13600k", cores=14, base_clock=3.5, score=75),
         CPU(brand="Intel", model="Core i5-12400", cores=6, base_clock=2.5, score=60),
         CPU(brand="Intel", model="Core i3-12100", cores=4, base_clock=3.3, score=45),
+        CPU(brand="AMD", model="Ryzen 9 9900x", cores=24, base_clock=4.4, score=99),
         CPU(brand="AMD", model="Ryzen 9 7950x", cores=16, base_clock=4.5, score=98),
         CPU(brand="AMD", model="Ryzen 9 5900X", cores=12, base_clock=3.7, score=88),
         CPU(brand="AMD", model="Ryzen 7 7700X", cores=8,  base_clock=4.5, score=80),
@@ -26,7 +27,8 @@ def seed_data():
     ]
 
     gpus = [
-        GPU(brand="NVIDIA", model="RTX 4090",    vram_gb=24, score=100),
+        GPU(brand="NVIDIA", model="RTX 5080",    vram_gb=16, score=98),
+        GPU(brand="NVIDIA", model="RTX 4090",    vram_gb=24, score=98),
         GPU(brand="NVIDIA", model="RTX 4080",    vram_gb=16, score=90),
         GPU(brand="NVIDIA", model="RTX 4070 Ti", vram_gb=12, score=82),
         GPU(brand="NVIDIA", model="RTX 4070",    vram_gb=12, score=75),
