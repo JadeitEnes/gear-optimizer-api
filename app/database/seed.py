@@ -23,15 +23,17 @@ def seed_data():
         CPU(brand="AMD", model="Ryzen 9 5900X", cores=12, base_clock=3.7, score=88),
         CPU(brand="AMD", model="Ryzen 7 7700X", cores=8,  base_clock=4.5, score=80),
         CPU(brand="AMD", model="Ryzen 5 7600X", cores=6,  base_clock=4.7, score=70),
+        CPU(brand="AMD", model="Ryzen 7 5800X", cores=8,  base_clock=3.8, score=68),
         CPU(brand="AMD", model="Ryzen 5 5600X", cores=6,  base_clock=3.7, score=62)
 
     ]
 
     gpus = [
         GPU(brand="NVIDIA", model="RTX 5080",    vram_gb=16, score=98),
+        GPU(brand="NVIDIA", model="RTX 5060 TI", vram_gb=16, score=73),
         GPU(brand="NVIDIA", model="RTX 4090",    vram_gb=24, score=98),
         GPU(brand="NVIDIA", model="RTX 4080",    vram_gb=16, score=90),
-        GPU(brand="NVIDIA", model="RTX 4070 Ti", vram_gb=12, score=82),
+        GPU(brand="NVIDIA", model="RTX 4070 TI", vram_gb=12, score=82),
         GPU(brand="NVIDIA", model="RTX 4070",    vram_gb=12, score=75),
         GPU(brand="NVIDIA", model="RTX 3080",    vram_gb=10, score=70),
         GPU(brand="AMD", model="RX 9070 XT",     vram_gb=16, score=85),
