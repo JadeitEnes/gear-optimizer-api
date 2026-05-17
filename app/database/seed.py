@@ -4,13 +4,7 @@ from app.database.models import Base, CPU, GPU, RAM, Resolution
 def seed_data():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-
-    if db.query(CPU).first():
-        print("Data already exists, skipping seed.")
-        db.close()
-        return
     
-
     cpus = [
         CPU(brand="Intel", model="Core i9-13900k", cores=24, base_clock=3.0, score=95),
         CPU(brand="Intel", model="Core Ultra 7 265K", cores=20, base_clock=3.3, score=98),
@@ -58,11 +52,35 @@ def seed_data():
         Resolution(name="2160p", width=3840, height=2160, demand_multiplier=1.8),
     ]
 
+    for cpu in cpus:
+        if not db.query(CPU).filter(CPU.model == cpu.model).first():
+            db.add(cpu)
+            print(f"[SEED] Yeni CPU eklendi: {cpu.model}")
+
+    
+    for gpu in gpus:
+        if not db.query(GPU).filter(GPU.model == gpu.model).first():
+            db.add(gpu)
+            print(f"[SEED] Yeni GPU eklendi: {gpu.model}")
+
+    
+    for ram in rams:
+        if not db.query(RAM).filter(RAM.capacity_gb == ram.capacity_gb, RAM.speed_mhz == ram.speed_mhz).first():
+            db.add(ram)
+            print(f"[SEED] Yeni RAM eklendi: {ram.capacity_gb}GB {ram.speed_mhz}MHz")
+
+   
+    for res in resolutions:
+        if not db.query(Resolution).filter(Resolution.name == res.name).first():
+            db.add(res)
+            print(f"[SEED] Yeni Çözünürlük eklendi: {res.name}")
+
     db.add_all(cpus)
     db.add_all(gpus)
     db.add_all(rams)
     db.add_all(resolutions)
     db.commit()
+    db.close()
     print("Seed data added successfully.")
     
     
