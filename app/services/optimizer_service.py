@@ -1,15 +1,9 @@
 import logging
-from enum import Enum
 from app.repositories.hardware_repository import HardwareRepository
 from app.schemas.gear_schema import GearInput, GearOutput
 from app.enums import UsagePurpose
 
 logger = logging.getLogger(__name__)
-
-class UsagePurpose(str, Enum):
-    GAMING = "gaming"
-    VIDEO_EDITING = "video_editing"
-    SOFTWARE_DEVELOPMENT = "software_development"
 
 USAGE_ADVICE: dict[UsagePurpose, str] = {
     UsagePurpose.GAMING: "Yüksek frekanslı RAM ve güçlü GPU önceliğiniz olmalı.",
