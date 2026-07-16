@@ -1,8 +1,14 @@
 const API_BASE = "";
+const HISTORY_KEY = "gearoptimizer_history";
+const HISTORY_LIMIT = 3;
 
-window.addEventListener("load", () => {
-    loadHardwareOptions();
-    document.getElementById("analyze-btn").addEventListener("click",runAnalysis);
+let hardwareData = { cpus: [], gpus: [], rams: [], resolutions: [] };
+
+window.addEventListener("load", async () => {
+    await loadHardwareOptions();
+    renderHistory();
+    document.getElementById("analyze-btn").addEventListener("click", runAnalysis);
+    document.getElementById("history-clear-btn").addEventListener("click", clearHistory);
 });
 
 async function loadHardwareOptions() {
@@ -13,6 +19,8 @@ async function loadHardwareOptions() {
             fetch(`${API_BASE}/hardware/rams`).then (r => r.json()),
             fetch(`${API_BASE}/hardware/resolutions`).then (r => r.json()),
         ]);
+
+        hardwareData = { cpus, gpus, rams, resolutions };
 
         populateSelect("cpu-select", cpus, c => `${c.brand} ${c.model} (${c.cores} Core)`);
         populateSelect("gpu-select", gpus, g => `${g.brand} ${g.model} (${g.vram_gb} GB)`);
@@ -56,6 +64,7 @@ async function runAnalysis() {
 
    const data = await response.json();
     showResult(data);
+    saveToHistory(payload, data);
   } catch (err) {
     console.error("Analysis error:", err);
   } finally {
@@ -78,4 +87,76 @@ function showResult(data) {
   ).join("");
 
   result.scrollIntoView({ behavior: "smooth" });
+}
+
+function findLabel(list, id, labelFn) {
+    const item = list.find(i => i.id === id);
+    return item ? labelFn(item) : "?";
+}
+
+function saveToHistory(payload, result) {
+    const cpuLabel = findLabel(hardwareData.cpus, payload.cpu_id, c => `${c.brand} ${c.model}`);
+    const gpuLabel = findLabel(hardwareData.gpus, payload.gpu_id, g => `${g.brand} ${g.model}`);
+
+    const entry = {
+        ...payload,
+        cpuLabel,
+        gpuLabel,
+        score: result.score,
+        level: result.level,
+    };
+
+    let history = getHistory();
+    history.unshift(entry);
+    history = history.slice(0, HISTORY_LIMIT);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderHistory();
+}
+
+function getHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    } catch (err) {
+        return [];
+    }
+}
+
+function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistory();
+}
+
+function renderHistory() {
+    const container = document.getElementById("history-list");
+    const history = getHistory();
+
+    if (history.length === 0) {
+        container.innerHTML = `<p class="history-empty">Henüz analiz yapılmadı.</p>`;
+        return;
+    }
+
+    container.innerHTML = history.map((entry, index) => `
+        <div class="history-item" data-index="${index}">
+            <div class="history-item-title">${entry.cpuLabel}<br>${entry.gpuLabel}</div>
+            <div class="history-item-meta"><span>${entry.level}</span><span>${entry.score}/100</span></div>
+        </div>
+    `).join("");
+
+    container.querySelectorAll(".history-item").forEach(el => {
+        el.addEventListener("click", () => loadFromHistory(parseInt(el.dataset.index)));
+    });
+}
+
+function loadFromHistory(index) {
+    const history = getHistory();
+    const entry = history[index];
+    if (!entry) return;
+
+    document.getElementById("cpu-select").value = entry.cpu_id;
+    document.getElementById("gpu-select").value = entry.gpu_id;
+    document.getElementById("ram-select").value = entry.ram_id;
+    document.getElementById("resolution-select").value = entry.resolution_id;
+    document.getElementById("purpose-select").value = entry.usage_purpose;
+
+    runAnalysis();
 }
