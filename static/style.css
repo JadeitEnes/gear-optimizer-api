@@ -77,10 +77,10 @@ main {
     flex: 1;
     padding: 48px;
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: minmax(0, 1fr) 260px;
     align-items: start;
-    gap: 32px;
-    max-width: 1220px;
+    gap: 24px;
+    max-width: 1180px;
     margin: 0 auto;
     width: 100%;
 }
@@ -92,9 +92,10 @@ main {
     min-width: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 720px) {
     main {
         grid-template-columns: 1fr;
+        padding: 24px;
     }
 }
 
@@ -241,6 +242,7 @@ main {
 .history-panel {
     position: sticky;
     top: 32px;
+    padding: 20px;
 }
 
 .history-list {
