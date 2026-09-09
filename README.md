@@ -23,6 +23,38 @@ The project features an **Authentic Retro-Terminal** interface. By combining cla
 - **Responsive Layout:** Fully compatible with mobile and desktop displays.
 
 ## 📦 Getting Started
-To launch the system in a local development environment:
+
+### Docker (PostgreSQL included)
 ```bash
 docker-compose up --build
+```
+
+### Local (SQLite, no database server needed)
+```bash
+pip install -r requirements-dev.txt
+export DATABASE_URL="sqlite:///./gear_optimizer.db"
+uvicorn app.main:app --reload
+```
+
+The catalog is seeded on startup, so no migration step is required.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `/ui` | Web interface |
+| `/docs` | Interactive API docs |
+| `/health` | Liveness probe for deployment platforms |
+
+## ✅ Tests
+```bash
+pytest
+```
+Tests run against an in-memory SQLite database with fixed hardware fixtures, so no
+external service is required and the production database is never touched.
+
+## ⚙️ Configuration
+| Variable | Default | Notes |
+| --- | --- | --- |
+| `DATABASE_URL` | *(required)* | PostgreSQL or SQLite connection string |
+| `ALLOWED_ORIGINS` | `http://localhost:8000` | Comma-separated CORS origins. Only needed if the frontend is served from a different domain than the API |
+| `SECRET_KEY` | `default_secret` | Override in production |
+| `DEBUG` | `false` | |
