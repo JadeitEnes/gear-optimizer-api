@@ -1,13 +1,12 @@
 import logging
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from app.routers import optimizer, hardware
-from app.database.database import engine
-from app.database.models import Base
-from app.database.seed import seed_data
 from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from app.routers import optimizer, hardware
+from app.database.seed import seed_data
+from app.exceptions import ComponentNotFoundError
 from app.config import get_settings
 
 logging.basicConfig(
@@ -18,7 +17,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,29 +25,43 @@ async def lifespan(app: FastAPI):
     logger.info("Application ready")
     yield
 
+
 app = FastAPI(
-    title = settings.app_name,
-    description = "Donanım ve performans optimizasyon API'si",
-    version = settings.app_version,
-    lifespan = lifespan
+    title=settings.app_name,
+    description="Donanım ve performans optimizasyon API'si",
+    version=settings.app_version,
+    lifespan=lifespan
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
 )
+
+
+@app.exception_handler(ComponentNotFoundError)
+async def component_not_found_handler(request: Request, exc: ComponentNotFoundError) -> JSONResponse:
+    logger.warning(f"Component not found: {exc.missing}")
+    return JSONResponse(status_code=404, content={"detail": str(exc)})
 
 
 app.include_router(optimizer.router)
 app.include_router(hardware.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/ui")
+
+@app.get("/ui", include_in_schema=False)
 def serve_ui() -> FileResponse:
     return FileResponse("static/index.html")
+
+
+@app.get("/health", tags=["System"])
+def health() -> dict:
+    return {"status": "ok"}
+
 
 @app.get("/")
 def root() -> dict:
@@ -58,4 +70,3 @@ def root() -> dict:
         "version": settings.app_version,
         "status": "running"
     }
-

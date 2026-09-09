@@ -1,6 +1,6 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
 from app.enums import UsagePurpose
+
 
 class GearInput(BaseModel):
     cpu_id: int = Field(..., title="CPU", description="CPU ID seçin")
@@ -9,53 +9,49 @@ class GearInput(BaseModel):
     resolution_id: int = Field(..., title="Resolution", description="Çözünürlük ID")
     usage_purpose: UsagePurpose = Field(..., title="Kullanım Amacı")
 
+
 class GearOutput(BaseModel):
-    score:int = Field(..., title="Performans Skoru")
-    level:str = Field(..., title="Seviye")
-    advice:str = Field(..., title="Tavsiye")
-    detail:dict = Field(..., title="Detay")
+    score: int = Field(..., title="Performans Skoru")
+    level: str = Field(..., title="Seviye")
+    advice: str = Field(..., title="Tavsiye")
+    detail: dict = Field(..., title="Detay")
+
 
 class CPUResponse(BaseModel):
-    id:int
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
     brand: str
     model: str
     cores: int
     base_clock: float
     score: int
 
-    class Config:
-        from_attributes = True
 
 class GPUResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     brand: str
     model: str
     vram_gb: int
     score: int
 
-    class Config:
-        from_attributes = True
 
 class RamResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     capacity_gb: int
     speed_mhz: int
     score: int
 
-    class Config:
-        from_attributes = True
 
 class ResolutionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
-    width: int 
+    width: int
     height: int
     demand_multiplier: float
-
-    class Config:
-        from_attributes = True
-        
-
-    
-
-

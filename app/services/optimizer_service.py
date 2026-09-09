@@ -2,6 +2,7 @@ import logging
 from app.repositories.hardware_repository import HardwareRepository
 from app.schemas.gear_schema import GearInput, GearOutput
 from app.enums import UsagePurpose
+from app.exceptions import ComponentNotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +80,7 @@ class OptimizerService:
         if not resolution: missing.append("Resolution")
         if missing:
             logger.warning(f"Invalid component IDs: {missing}")
-            raise ValueError(f"Geçersiz donanım ID'si: {', '.join(missing)}")
+            raise ComponentNotFoundError(missing)
 
 
     def _calculate_level(self, score: int) -> str:
@@ -97,17 +98,3 @@ class OptimizerService:
         if diff < -15:
             return f"CPU'n GPU'nun gerisinde kalıyor (CPU {cpu_score} / GPU {gpu_score_adjusted}) — darboğazın CPU."
         return f"CPU ({cpu_score}) ve GPU ({gpu_score_adjusted}) skorların dengeli, belirgin bir darboğaz yok."
-
-
-
-
-
-   
-    
-
-    
-    
-    
-    
-
-   
