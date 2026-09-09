@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,18 +7,16 @@
     <link rel="icon" type="image/png" href="/static/GearOptimizer.png"/>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css"/>
-
 </head>
 <body>
 
-    <div class="bg-watermark"> </div>  
-   
+    <div class="bg-watermark"></div>
 
     <header>
-        <img src="/static/GearOptimizer.png" class="header-logo" alt="logo">
+        <img src="/static/GearOptimizer.png" class="header-logo" alt="Gear Optimizer logo">
         <div class="header-text">
             <h1>GEAR <span>OPTIMIZER</span></h1>
-            <p class="header-sub">//Hardware Performance Analyzer</p>
+            <p class="header-sub">// Hardware Performance Analyzer</p>
         </div>
     </header>
 
@@ -27,28 +25,32 @@
         <div class="panel">
             <div class="panel-title">[ SYSTEM CONFIGURATION ]</div>
 
+            <div class="alert-box" id="alert-box" hidden></div>
+
             <div class="form-grid">
                 <div class="field">
-                    <label>> CPU_SELECT:</label>
-                    <select  id="cpu-select"><option value="">-LOADING-</option></select>
+                    <label for="cpu-select">&gt; CPU_SELECT:</label>
+                    <select id="cpu-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label>> GPU_SELECT:</label>
-                    <select  id="gpu-select"><option value="">-LOADING-</option></select>
-                </div>
-                <div class="field">
-                    <label>> RAM_SELECT:</label>
-                    <select  id="ram-select"><option value="">-LOADING-</option></select>
-                </div>
-                <div class="field">
-                    <label>> RESOLUTION:</label>
-                    <select  id="resolution-select"><option value="">-LOADING-</option></select>
+                    <label for="gpu-select">&gt; GPU_SELECT:</label>
+                    <select id="gpu-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label>> USAGE_PURPOSE</label>
-                    <select  id="purpose-select">
+                    <label for="ram-select">&gt; RAM_SELECT:</label>
+                    <select id="ram-select"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="resolution-select">&gt; RESOLUTION:</label>
+                    <select id="resolution-select"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="purpose-select">&gt; USAGE_PURPOSE:</label>
+                    <select id="purpose-select">
                         <option value="gaming_gpu_intensive">-GAMING (GPU AĞIRLIKLI)-</option>
                         <option value="gaming_cpu_intensive">-GAMING (CPU AĞIRLIKLI)-</option>
                         <option value="gaming_balanced">-GAMING (DENGELİ)-</option>
@@ -57,24 +59,31 @@
                     </select>
                 </div>
              </div>
-        
 
-        <button id="analyze-btn">> RUN ANALYSIS [ ENTER ]</button>
-      </div>
+            <button id="analyze-btn">&gt; RUN ANALYSIS [ ENTER ]</button>
+        </div>
 
-      <div class="panel result-panel" id="result" style="display: none;">
-        <div class="panel-title"> [ ANALYSIS RESULT ]</div>
-        <div class="score-line">
-            PERFORMANCE SCORE: <span id="score-value">0</span>/100
+        <div class="panel result-panel" id="result" hidden>
+            <div class="panel-title">[ ANALYSIS RESULT ]</div>
+
+            <div class="score-line">
+                PERFORMANS SKORU: <span id="score-value">0</span>/100
+            </div>
+            <div class="level-line">
+                SİSTEM SEVİYESİ: <span id="score-level"></span>
+            </div>
+
+            <div class="bottleneck-box" id="bottleneck"></div>
+
+            <div class="breakdown-title">SKORA KATKI DAĞILIMI</div>
+            <div class="breakdown" id="breakdown"></div>
+
+            <div class="resolution-note" id="resolution-note"></div>
+
+            <div class="advice-line">
+                ÖNERİ: <span id="advice"></span>
+            </div>
         </div>
-        <div class="level-line">
-            SYSTEM LEVEL: <span id="score-level"></span>
-        </div>
-        <div class="advice-line">
-            RECOMMENDATION: <span id="advice"></span>
-        </div>
-        <div class="detail-block" id="detail-grid"></div>
-      </div>
       </div>
 
       <aside class="panel history-panel">
@@ -82,14 +91,14 @@
         <div id="history-list" class="history-list">
             <p class="history-empty">Henüz analiz yapılmadı.</p>
         </div>
-        <button id="history-clear-btn" class="history-clear-btn">> GEÇMİŞİ TEMİZLE</button>
+        <button id="history-clear-btn" class="history-clear-btn">&gt; GEÇMİŞİ TEMİZLE</button>
       </aside>
     </main>
 
     <footer>
-        <p> // GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL </p>
+        <p>// GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL</p>
      </footer>
-    
+
     <script src="/static/app.js"></script>
 </body>
 </html>
