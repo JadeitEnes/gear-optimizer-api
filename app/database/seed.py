@@ -1,10 +1,14 @@
+import logging
 from app.database.database import SessionLocal, engine
 from app.database.models import Base, CPU, GPU, RAM, Resolution
 
-def seed_data():
+logger = logging.getLogger(__name__)
+
+
+def seed_data() -> None:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    
+
     cpus = [
         CPU(brand="Intel", model="Core Ultra 9 285K", cores=24, base_clock=3.7, score=100),
         CPU(brand="AMD", model="Ryzen 9 9950X", cores=16, base_clock=4.3, score=98),
@@ -73,30 +77,37 @@ def seed_data():
     ]
 
     try:
+        added = 0
+
+        existing_cpus = {model for (model,) in db.query(CPU.model).all()}
         for cpu in cpus:
-            if not db.query(CPU).filter(CPU.model == cpu.model).first():
+            if cpu.model not in existing_cpus:
                 db.add(cpu)
-                print(f"[SEED] Yeni CPU eklendi: {cpu.model}")
+                added += 1
 
+        existing_gpus = {model for (model,) in db.query(GPU.model).all()}
         for gpu in gpus:
-            if not db.query(GPU).filter(GPU.model == gpu.model).first():
+            if gpu.model not in existing_gpus:
                 db.add(gpu)
-                print(f"[SEED] Yeni GPU eklendi: {gpu.model}")
+                added += 1
 
+        existing_rams = {pair for pair in db.query(RAM.capacity_gb, RAM.speed_mhz).all()}
         for ram in rams:
-            if not db.query(RAM).filter(RAM.capacity_gb == ram.capacity_gb, RAM.speed_mhz == ram.speed_mhz).first():
+            if (ram.capacity_gb, ram.speed_mhz) not in existing_rams:
                 db.add(ram)
-                print(f"[SEED] Yeni RAM eklendi: {ram.capacity_gb}GB {ram.speed_mhz}MHz")
+                added += 1
 
+        existing_resolutions = {name for (name,) in db.query(Resolution.name).all()}
         for res in resolutions:
-            if not db.query(Resolution).filter(Resolution.name == res.name).first():
+            if res.name not in existing_resolutions:
                 db.add(res)
-                print(f"[SEED] Yeni Çözünürlük eklendi: {res.name}")
+                added += 1
 
         db.commit()
-        print("Seed data added successfully.")
+        logger.info(f"Seed complete - {added} new component(s) inserted")
     except Exception:
         db.rollback()
+        logger.exception("Seed failed, transaction rolled back")
         raise
     finally:
         db.close()
