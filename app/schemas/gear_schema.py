@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 from app.enums import UsagePurpose
 
@@ -55,3 +56,19 @@ class ResolutionResponse(BaseModel):
     width: int
     height: int
     demand_multiplier: float
+
+
+class UpgradeOption(BaseModel):
+    component: Literal["cpu", "gpu", "ram"] = Field(..., title="Bileşen")
+    current: str = Field(..., title="Mevcut Model")
+    suggested: str | None = Field(None, title="Önerilen Model", description="Zaten en üst modeldeyse null")
+    score_gain: int = Field(..., title="Skor Kazancı", description="Bu yükseltmenin toplam skora katkısı")
+    cost_index: float = Field(..., title="Maliyet Endeksi", description="Piyasa koşullarına göre elle ayarlanan göreli maliyet çarpanı")
+    efficiency: float = Field(..., title="Verimlilik", description="score_gain / cost_index — sıralama bu değere göre yapılır")
+    note: str = Field(..., title="Açıklama")
+
+
+class UpgradeAdvice(BaseModel):
+    baseline_score: int = Field(..., title="Mevcut Skor")
+    options: list[UpgradeOption] = Field(..., title="Seçenekler")
+    best_pick: UpgradeOption | None = Field(None, title="En Verimli Seçim", description="Hiçbir yükseltme skoru artırmıyorsa null")

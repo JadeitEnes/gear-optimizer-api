@@ -41,4 +41,16 @@ class HardwareRepository:
     def get_resolution_by_id(self, resolution_id: int) -> Optional[Resolution]:
         logger.debug(f"Fetching Resolution with id={resolution_id}")
         return self.db.query(Resolution).filter(Resolution.id == resolution_id).first()
-        
+
+    def get_next_better_cpu(self, score: int) -> Optional[CPU]:
+        logger.debug(f"Fetching next CPU above score={score}")
+        return self.db.query(CPU).filter(CPU.score > score).order_by(CPU.score.asc()).first()
+
+    def get_next_better_gpu(self, score: int) -> Optional[GPU]:
+        logger.debug(f"Fetching next GPU above score={score}")
+        return self.db.query(GPU).filter(GPU.score > score).order_by(GPU.score.asc()).first()
+
+    def get_next_better_ram(self, score: int) -> Optional[RAM]:
+        logger.debug(f"Fetching next RAM above score={score}")
+        return self.db.query(RAM).filter(RAM.score > score).order_by(RAM.score.asc()).first()
+
