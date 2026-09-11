@@ -99,20 +99,36 @@ async function runAnalysis() {
     btn.disabled = true;
 
     try {
-        const response = await fetch(`${API_BASE}/optimizer/analyze`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-        });
+        const requestBody = JSON.stringify(payload);
+        const [analyzeResponse, adviceResponse] = await Promise.all([
+            fetch(`${API_BASE}/optimizer/analyze`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: requestBody,
+            }),
+            fetch(`${API_BASE}/optimizer/upgrade-advice`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: requestBody,
+            }),
+        ]);
 
-        if (!response.ok) throw new Error(await readErrorMessage(response));
+        if (!analyzeResponse.ok) throw new Error(await readErrorMessage(analyzeResponse));
 
-        const data = await response.json();
+        const data = await analyzeResponse.json();
         showResult(data);
         saveToHistory(payload, data);
+
+        if (adviceResponse.ok) {
+            showUpgradeAdvice(await adviceResponse.json());
+        } else {
+            console.error("Upgrade advice failed:", adviceResponse.status);
+            document.getElementById("upgrade-panel").hidden = true;
+        }
     } catch (err) {
         console.error("Analysis error:", err);
         document.getElementById("result").hidden = true;
+        document.getElementById("upgrade-panel").hidden = true;
         showAlert(err.message || "Analiz başarısız oldu, tekrar dene.");
     } finally {
         btn.textContent = "> RUN_ANALYSIS [ ENTER ]";
@@ -201,6 +217,44 @@ function renderResolutionNote(detail) {
     note.textContent =
         `${detail.resolution} çözünürlükte GPU yükü ${multiplier}× artıyor: ` +
         `${detail.gpu_score_raw} olan ham GPU gücü, hesaba ${detail.gpu_score_adjusted} olarak giriyor.`;
+}
+
+const COMPONENT_LABELS = { cpu: "CPU", gpu: "GPU", ram: "RAM" };
+
+function showUpgradeAdvice(advice) {
+    const panel = document.getElementById("upgrade-panel");
+    const bestBox = document.getElementById("upgrade-best");
+    const optionsBox = document.getElementById("upgrade-options");
+
+    bestBox.innerHTML = advice.best_pick
+        ? `<span class="upgrade-best-label">EN VERİMLİ SEÇİM</span>
+           <span class="upgrade-best-text">${COMPONENT_LABELS[advice.best_pick.component]} → ${escapeHtml(advice.best_pick.suggested)}
+           (+${advice.best_pick.score_gain} puan)</span>`
+        : `<span class="upgrade-best-text">Zaten dengeli bir sistemdesin — tek parça değişimi skoru belirgin artırmıyor.</span>`;
+
+    optionsBox.innerHTML = advice.options.map(option => {
+        const isBest = advice.best_pick?.component === option.component;
+        const body = option.suggested
+            ? `${escapeHtml(option.current)} → ${escapeHtml(option.suggested)}`
+            : escapeHtml(option.current);
+
+        return `
+            <div class="upgrade-option${isBest ? " upgrade-option-best" : ""}">
+                <div class="upgrade-option-head">
+                    <span class="upgrade-option-label">${COMPONENT_LABELS[option.component]}</span>
+                    ${isBest ? '<span class="upgrade-option-badge">ÖNERİLEN</span>' : ""}
+                </div>
+                <div class="upgrade-option-body">${body}</div>
+                <div class="upgrade-option-meta">
+                    <span>+${option.score_gain} puan</span>
+                    <span>verimlilik ${option.efficiency}</span>
+                </div>
+                <div class="upgrade-option-note">${escapeHtml(option.note)}</div>
+            </div>
+        `;
+    }).join("");
+
+    panel.hidden = false;
 }
 
 function findLabel(list, id, labelFn) {
