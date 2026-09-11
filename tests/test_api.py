@@ -15,9 +15,9 @@ def test_health_endpoint(client):
 
 
 def test_hardware_endpoints_expose_catalog(client):
-    assert len(client.get("/hardware/cpus").json()) == 2
-    assert len(client.get("/hardware/gpus").json()) == 2
-    assert len(client.get("/hardware/rams").json()) == 1
+    assert len(client.get("/hardware/cpus").json()) == 3
+    assert len(client.get("/hardware/gpus").json()) == 3
+    assert len(client.get("/hardware/rams").json()) == 2
     assert len(client.get("/hardware/resolutions").json()) == 2
 
 
@@ -56,3 +56,18 @@ def test_analyze_rejects_missing_field(client):
     response = client.post("/optimizer/analyze", json=payload)
 
     assert response.status_code == 422
+
+
+def test_upgrade_advice_returns_one_option_per_component(client):
+    response = client.post("/optimizer/upgrade-advice", json=VALID_PAYLOAD)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["baseline_score"] == 88
+    assert {option["component"] for option in body["options"]} == {"cpu", "gpu", "ram"}
+
+
+def test_upgrade_advice_unknown_component_returns_404(client):
+    response = client.post("/optimizer/upgrade-advice", json={**VALID_PAYLOAD, "cpu_id": 999})
+
+    assert response.status_code == 404
