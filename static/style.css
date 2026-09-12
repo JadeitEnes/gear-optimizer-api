@@ -237,6 +237,68 @@ main {
     color: rgb(255, 236, 194);
 }
 
+.share-block {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgb(58, 84, 101);
+}
+
+.share-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    background: transparent;
+    color: rgb(149, 201, 207);
+    border: 1px solid rgb(58, 84, 101);
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.share-btn:hover:not(:disabled) {
+    border-color: rgb(81, 186, 255);
+    color: rgb(81, 186, 255);
+}
+
+.share-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.share-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.share-url {
+    flex: 1;
+    min-width: 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    background: #03052d;
+    color: rgb(255, 255, 255);
+    border: 1px solid rgb(0, 195, 255);
+    padding: 8px 10px;
+}
+
+.share-copy-btn {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    background: rgb(0, 141, 120);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.3s;
+}
+
+.share-copy-btn:hover {
+    background: rgb(0, 170, 145);
+}
+
 .bottleneck-box {
     border-left: 4px solid rgb(255, 169, 40);
     background: rgba(0, 61, 102, 0.35);

@@ -11,6 +11,10 @@ window.addEventListener("load", async () => {
     renderHistory();
     document.getElementById("analyze-btn").addEventListener("click", runAnalysis);
     document.getElementById("history-clear-btn").addEventListener("click", clearHistory);
+    document.getElementById("share-btn").addEventListener("click", shareResult);
+    document.getElementById("share-copy-btn").addEventListener("click", copyShareUrl);
+
+    await loadFromShareLink();
 });
 
 function escapeHtml(value) {
@@ -78,16 +82,27 @@ function populateSelect(id, items, labelFn) {
         .join("");
 }
 
-async function runAnalysis() {
-    const btn = document.getElementById("analyze-btn");
-
-    const payload = {
+function currentGearPayload() {
+    return {
         cpu_id: parseInt(document.getElementById("cpu-select").value),
         gpu_id: parseInt(document.getElementById("gpu-select").value),
         ram_id: parseInt(document.getElementById("ram-select").value),
         resolution_id: parseInt(document.getElementById("resolution-select").value),
         usage_purpose: document.getElementById("purpose-select").value,
     };
+}
+
+function applyGearToForm(gear) {
+    document.getElementById("cpu-select").value = gear.cpu_id;
+    document.getElementById("gpu-select").value = gear.gpu_id;
+    document.getElementById("ram-select").value = gear.ram_id;
+    document.getElementById("resolution-select").value = gear.resolution_id;
+    document.getElementById("purpose-select").value = gear.usage_purpose;
+}
+
+async function runAnalysis() {
+    const btn = document.getElementById("analyze-btn");
+    const payload = currentGearPayload();
 
     if (Object.values(payload).some(value => Number.isNaN(value))) {
         showAlert("Analiz için tüm donanım alanlarını seç.");
@@ -129,6 +144,7 @@ async function runAnalysis() {
         console.error("Analysis error:", err);
         document.getElementById("result").hidden = true;
         document.getElementById("upgrade-panel").hidden = true;
+        document.getElementById("share-row").hidden = true;
         showAlert(err.message || "Analiz başarısız oldu, tekrar dene.");
     } finally {
         btn.textContent = "> RUN_ANALYSIS [ ENTER ]";
@@ -159,8 +175,74 @@ function showResult(data) {
     renderBreakdown(detail);
     renderResolutionNote(detail);
 
+    document.getElementById("share-row").hidden = true;
     result.hidden = false;
     result.scrollIntoView({ behavior: "smooth" });
+}
+
+async function shareResult() {
+    const btn = document.getElementById("share-btn");
+    const payload = currentGearPayload();
+
+    btn.disabled = true;
+    btn.textContent = "> LİNK OLUŞTURULUYOR...";
+
+    try {
+        const response = await fetch(`${API_BASE}/optimizer/share`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) throw new Error(await readErrorMessage(response));
+
+        const { slug } = await response.json();
+        const url = `${window.location.origin}${window.location.pathname}?share=${slug}`;
+
+        const urlInput = document.getElementById("share-url");
+        urlInput.value = url;
+        document.getElementById("share-row").hidden = false;
+        urlInput.select();
+
+        await copyShareUrl();
+    } catch (err) {
+        console.error("Share failed:", err);
+        showAlert(err.message || "Paylaşım linki oluşturulamadı, tekrar dene.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = "> SONUCU PAYLAŞ";
+    }
+}
+
+async function copyShareUrl() {
+    const urlInput = document.getElementById("share-url");
+    const copyBtn = document.getElementById("share-copy-btn");
+
+    try {
+        await navigator.clipboard.writeText(urlInput.value);
+        copyBtn.textContent = "✓ KOPYALANDI";
+    } catch (err) {
+        console.error("Clipboard write failed:", err);
+        urlInput.select();
+        copyBtn.textContent = "KOPYALA (Ctrl+C)";
+    }
+    setTimeout(() => { copyBtn.textContent = "KOPYALA"; }, 2000);
+}
+
+async function loadFromShareLink() {
+    const slug = new URLSearchParams(window.location.search).get("share");
+    if (!slug) return;
+
+    try {
+        const response = await fetch(`${API_BASE}/optimizer/share/${encodeURIComponent(slug)}`);
+        if (!response.ok) throw new Error(await readErrorMessage(response));
+
+        applyGearToForm(await response.json());
+        await runAnalysis();
+    } catch (err) {
+        console.error("Share link load failed:", err);
+        showAlert("Bu paylaşım linki geçersiz veya bulunamadı. Kendi analizini yapabilirsin.");
+    }
 }
 
 function renderBreakdown(detail) {
@@ -316,11 +398,6 @@ function loadFromHistory(index) {
     const entry = getHistory()[index];
     if (!entry) return;
 
-    document.getElementById("cpu-select").value = entry.cpu_id;
-    document.getElementById("gpu-select").value = entry.gpu_id;
-    document.getElementById("ram-select").value = entry.ram_id;
-    document.getElementById("resolution-select").value = entry.resolution_id;
-    document.getElementById("purpose-select").value = entry.usage_purpose;
-
+    applyGearToForm(entry);
     runAnalysis();
 }
