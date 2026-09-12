@@ -6,7 +6,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from app.routers import optimizer, hardware
 from app.database.seed import seed_data
-from app.exceptions import ComponentNotFoundError
+from app.exceptions import ComponentNotFoundError, SharedBuildNotFoundError
 from app.config import get_settings
 
 logging.basicConfig(
@@ -45,6 +45,12 @@ app.add_middleware(
 @app.exception_handler(ComponentNotFoundError)
 async def component_not_found_handler(request: Request, exc: ComponentNotFoundError) -> JSONResponse:
     logger.warning(f"Component not found: {exc.missing}")
+    return JSONResponse(status_code=404, content={"detail": str(exc)})
+
+
+@app.exception_handler(SharedBuildNotFoundError)
+async def shared_build_not_found_handler(request: Request, exc: SharedBuildNotFoundError) -> JSONResponse:
+    logger.warning(f"Shared build not found: {exc.slug}")
     return JSONResponse(status_code=404, content={"detail": str(exc)})
 
 

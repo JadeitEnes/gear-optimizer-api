@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Float, UniqueConstraint
+from datetime import datetime, timezone
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, UniqueConstraint
 from app.database.database import Base
 
 class CPU(Base):
@@ -36,3 +37,15 @@ class Resolution(Base):
     width = Column(Integer, nullable=False)
     height = Column(Integer, nullable=False)
     demand_multiplier = Column(Float, nullable=False)
+
+class SharedBuild(Base):
+    __tablename__ = "shared_builds"
+
+    id = Column(Integer, primary_key=True, index=True)
+    slug = Column(String, nullable=False, unique=True, index=True)
+    cpu_id = Column(Integer, ForeignKey("cpus.id"), nullable=False)
+    gpu_id = Column(Integer, ForeignKey("gpus.id"), nullable=False)
+    ram_id = Column(Integer, ForeignKey("rams.id"), nullable=False)
+    resolution_id = Column(Integer, ForeignKey("resolutions.id"), nullable=False)
+    usage_purpose = Column(String, nullable=False)
+    created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))

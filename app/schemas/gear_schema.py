@@ -72,3 +72,7 @@ class UpgradeAdvice(BaseModel):
     baseline_score: int = Field(..., title="Mevcut Skor")
     options: list[UpgradeOption] = Field(..., title="Seçenekler")
     best_pick: UpgradeOption | None = Field(None, title="En Verimli Seçim", description="Hiçbir yükseltme skoru artırmıyorsa null")
+
+
+class ShareResponse(BaseModel):
+    slug: str = Field(..., title="Paylaşım Kodu")
