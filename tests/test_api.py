@@ -71,3 +71,26 @@ def test_upgrade_advice_unknown_component_returns_404(client):
     response = client.post("/optimizer/upgrade-advice", json={**VALID_PAYLOAD, "cpu_id": 999})
 
     assert response.status_code == 404
+
+
+def test_share_roundtrip_returns_the_same_build(client):
+    create_response = client.post("/optimizer/share", json=VALID_PAYLOAD)
+    assert create_response.status_code == 200
+    slug = create_response.json()["slug"]
+    assert slug
+
+    fetch_response = client.get(f"/optimizer/share/{slug}")
+    assert fetch_response.status_code == 200
+    assert fetch_response.json() == VALID_PAYLOAD
+
+
+def test_share_unknown_component_returns_404(client):
+    response = client.post("/optimizer/share", json={**VALID_PAYLOAD, "ram_id": 999})
+
+    assert response.status_code == 404
+
+
+def test_share_unknown_slug_returns_404(client):
+    response = client.get("/optimizer/share/not-a-real-slug")
+
+    assert response.status_code == 404

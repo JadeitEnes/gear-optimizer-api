@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.database.database import Base, get_db
+from app.database.database import Base, get_db, enable_sqlite_foreign_keys
 from app.database.models import CPU, GPU, RAM, Resolution
 from app.main import app
 
@@ -32,6 +32,7 @@ def db_session():
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
+    event.listens_for(engine, "connect")(enable_sqlite_foreign_keys)
     Base.metadata.create_all(bind=engine)
     TestingSession = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = TestingSession()

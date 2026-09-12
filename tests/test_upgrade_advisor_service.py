@@ -24,8 +24,6 @@ def _gear(**overrides) -> GearInput:
 
 
 def test_suggests_the_nearest_better_cpu(db_session):
-    # cpu_id=1 has score 86; the next tier up in fixtures is id=3 (score 100),
-    # not a jump straight to whatever the highest-scoring CPU happens to be.
     advice = _advisor(db_session).advise(_gear(cpu_id=1))
 
     cpu_option = next(o for o in advice.options if o.component == "cpu")
@@ -35,7 +33,7 @@ def test_suggests_the_nearest_better_cpu(db_session):
 
 
 def test_component_at_top_tier_has_no_suggestion(db_session):
-    advice = _advisor(db_session).advise(_gear(cpu_id=3))  # score 100, highest in fixtures
+    advice = _advisor(db_session).advise(_gear(cpu_id=3))
 
     cpu_option = next(o for o in advice.options if o.component == "cpu")
     assert cpu_option.suggested is None
@@ -60,9 +58,6 @@ def test_options_are_sorted_by_efficiency_descending(db_session):
 
 
 def test_ram_cost_index_can_outrank_a_larger_raw_gain(db_session):
-    # Scores above 100 are used purely to isolate this scenario from the
-    # regular catalog fixtures — nothing else in the DB scores that high,
-    # so the "next better" lookup can only land on these rows.
     db_session.add_all([
         CPU(brand="Bench", model="CPU-Base", cores=1, base_clock=1.0, score=200),
         CPU(brand="Bench", model="CPU-Next", cores=1, base_clock=1.0, score=220),
@@ -81,20 +76,13 @@ def test_ram_cost_index_can_outrank_a_larger_raw_gain(db_session):
     advice = _advisor(db_session).advise(gear)
     by_component = {option.component: option for option in advice.options}
 
-    # RAM's raw score gain is the biggest of the three...
     assert by_component["ram"].score_gain == 10
     assert by_component["gpu"].score_gain == 9
-    # ...but its 1.5x cost_index knocks its efficiency below GPU's, so GPU —
-    # not RAM — is the recommended upgrade. This is the whole point of the
-    # cost_index: raw score gain alone would have picked RAM.
     assert by_component["gpu"].efficiency > by_component["ram"].efficiency
     assert advice.best_pick.component == "gpu"
 
 
 def test_gpu_upgrade_uses_raw_score_not_resolution_adjusted_score(db_session):
-    # gpu_id=1 (score 98) and gpu_id=3 (score 100) are close enough that the
-    # 1.8x demand multiplier at 2160p could, if applied before the lookup,
-    # make the search miss the real next tier. It shouldn't be applied here.
     advice = _advisor(db_session).advise(_gear(gpu_id=1, resolution_id=2))
 
     gpu_option = next(o for o in advice.options if o.component == "gpu")
