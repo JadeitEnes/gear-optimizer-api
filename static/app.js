@@ -1,12 +1,38 @@
 const API_BASE = "";
 const HISTORY_KEY = "gearoptimizer_history";
 const HISTORY_LIMIT = 3;
+const THEME_KEY = "gearoptimizer_theme";
 
 const SELECT_IDS = ["cpu-select", "gpu-select", "ram-select", "resolution-select"];
+
+const THEME_LABELS = {
+    headerSub: { retro: "// Hardware Performance Analyzer", modern: "Hardware Performance Analyzer" },
+    configTitle: { retro: "[ SYSTEM CONFIGURATION ]", modern: "Sistem Yapılandırması" },
+    cpuLabel: { retro: "> CPU_SELECT:", modern: "CPU" },
+    gpuLabel: { retro: "> GPU_SELECT:", modern: "GPU" },
+    ramLabel: { retro: "> RAM_SELECT:", modern: "RAM" },
+    resolutionLabel: { retro: "> RESOLUTION:", modern: "Çözünürlük" },
+    purposeLabel: { retro: "> USAGE_PURPOSE:", modern: "Kullanım Amacı" },
+    analyzeIdle: { retro: "> RUN_ANALYSIS [ ENTER ]", modern: "Analizi Başlat" },
+    analyzeBusy: { retro: "> ANALYZING... PLEASE WAIT", modern: "Analiz ediliyor..." },
+    resultTitle: { retro: "[ ANALYSIS RESULT ]", modern: "Analiz Sonucu" },
+    shareIdle: { retro: "> SONUCU PAYLAŞ", modern: "Sonucu Paylaş" },
+    shareBusy: { retro: "> LİNK OLUŞTURULUYOR...", modern: "Link oluşturuluyor..." },
+    copyIdle: { retro: "KOPYALA", modern: "Kopyala" },
+    copySuccess: { retro: "✓ KOPYALANDI", modern: "✓ Kopyalandı" },
+    copyFallback: { retro: "KOPYALA (Ctrl+C)", modern: "Kopyala (Ctrl+C)" },
+    upgradeTitle: { retro: "[ UPGRADE ADVISOR ]", modern: "Yükseltme Önerisi" },
+    historyTitle: { retro: "[ SON 3 SİSTEM ]", modern: "Son 3 Sistem" },
+    historyClear: { retro: "> GEÇMİŞİ TEMİZLE", modern: "Geçmişi Temizle" },
+    footer: { retro: "// GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL", modern: "Gear Optimizer © 2026 — jadeIT" },
+};
 
 let hardwareData = { cpus: [], gpus: [], rams: [], resolutions: [] };
 
 window.addEventListener("load", async () => {
+    applyStaticLabels();
+    document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+
     await loadHardwareOptions();
     renderHistory();
     document.getElementById("analyze-btn").addEventListener("click", runAnalysis);
@@ -16,6 +42,47 @@ window.addEventListener("load", async () => {
 
     await loadFromShareLink();
 });
+
+function currentTheme() {
+    return document.documentElement.dataset.theme === "modern" ? "modern" : "retro";
+}
+
+function applyStaticLabels() {
+    const theme = currentTheme();
+
+    document.getElementById("header-sub").textContent = THEME_LABELS.headerSub[theme];
+    document.getElementById("config-title").textContent = THEME_LABELS.configTitle[theme];
+    document.getElementById("cpu-label").textContent = THEME_LABELS.cpuLabel[theme];
+    document.getElementById("gpu-label").textContent = THEME_LABELS.gpuLabel[theme];
+    document.getElementById("ram-label").textContent = THEME_LABELS.ramLabel[theme];
+    document.getElementById("resolution-label").textContent = THEME_LABELS.resolutionLabel[theme];
+    document.getElementById("purpose-label").textContent = THEME_LABELS.purposeLabel[theme];
+    document.getElementById("result-title").textContent = THEME_LABELS.resultTitle[theme];
+    document.getElementById("upgrade-title").textContent = THEME_LABELS.upgradeTitle[theme];
+    document.getElementById("history-title").textContent = THEME_LABELS.historyTitle[theme];
+    document.getElementById("history-clear-btn").textContent = THEME_LABELS.historyClear[theme];
+    document.getElementById("footer-text").textContent = THEME_LABELS.footer[theme];
+    document.getElementById("theme-toggle").textContent = theme === "modern" ? "Retro Görünüm" : "Modern Görünüm";
+
+    const analyzeBtn = document.getElementById("analyze-btn");
+    if (!analyzeBtn.disabled) analyzeBtn.textContent = THEME_LABELS.analyzeIdle[theme];
+
+    const shareBtn = document.getElementById("share-btn");
+    if (!shareBtn.disabled) shareBtn.textContent = THEME_LABELS.shareIdle[theme];
+
+    document.getElementById("share-copy-btn").textContent = THEME_LABELS.copyIdle[theme];
+
+    document.querySelectorAll("#purpose-select option[data-retro]").forEach(option => {
+        option.textContent = theme === "modern" ? option.dataset.modern : option.dataset.retro;
+    });
+}
+
+function toggleTheme() {
+    const next = currentTheme() === "modern" ? "retro" : "modern";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem(THEME_KEY, next);
+    applyStaticLabels();
+}
 
 function escapeHtml(value) {
     return String(value)
@@ -110,7 +177,7 @@ async function runAnalysis() {
     }
 
     clearAlert();
-    btn.textContent = "> ANALYZING... PLEASE WAIT";
+    btn.textContent = THEME_LABELS.analyzeBusy[currentTheme()];
     btn.disabled = true;
 
     try {
@@ -147,7 +214,7 @@ async function runAnalysis() {
         document.getElementById("share-row").hidden = true;
         showAlert(err.message || "Analiz başarısız oldu, tekrar dene.");
     } finally {
-        btn.textContent = "> RUN_ANALYSIS [ ENTER ]";
+        btn.textContent = THEME_LABELS.analyzeIdle[currentTheme()];
         btn.disabled = false;
     }
 }
@@ -185,7 +252,7 @@ async function shareResult() {
     const payload = currentGearPayload();
 
     btn.disabled = true;
-    btn.textContent = "> LİNK OLUŞTURULUYOR...";
+    btn.textContent = THEME_LABELS.shareBusy[currentTheme()];
 
     try {
         const response = await fetch(`${API_BASE}/optimizer/share`, {
@@ -210,7 +277,7 @@ async function shareResult() {
         showAlert(err.message || "Paylaşım linki oluşturulamadı, tekrar dene.");
     } finally {
         btn.disabled = false;
-        btn.textContent = "> SONUCU PAYLAŞ";
+        btn.textContent = THEME_LABELS.shareIdle[currentTheme()];
     }
 }
 
@@ -220,13 +287,13 @@ async function copyShareUrl() {
 
     try {
         await navigator.clipboard.writeText(urlInput.value);
-        copyBtn.textContent = "✓ KOPYALANDI";
+        copyBtn.textContent = THEME_LABELS.copySuccess[currentTheme()];
     } catch (err) {
         console.error("Clipboard write failed:", err);
         urlInput.select();
-        copyBtn.textContent = "KOPYALA (Ctrl+C)";
+        copyBtn.textContent = THEME_LABELS.copyFallback[currentTheme()];
     }
-    setTimeout(() => { copyBtn.textContent = "KOPYALA"; }, 2000);
+    setTimeout(() => { copyBtn.textContent = THEME_LABELS.copyIdle[currentTheme()]; }, 2000);
 }
 
 async function loadFromShareLink() {

@@ -5,57 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gear Optimizer</title>
     <link rel="icon" type="image/png" href="/static/GearOptimizer.png"/>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css"/>
+    <script>
+        (function () {
+            var saved = localStorage.getItem("gearoptimizer_theme");
+            document.documentElement.dataset.theme = saved === "modern" ? "modern" : "retro";
+        })();
+    </script>
 </head>
 <body>
 
     <div class="bg-watermark"></div>
 
     <header>
-        <img src="/static/GearOptimizer.png" class="header-logo" alt="Gear Optimizer logo">
-        <div class="header-text">
-            <h1>GEAR <span>OPTIMIZER</span></h1>
-            <p class="header-sub">// Hardware Performance Analyzer</p>
+        <div class="header-brand">
+            <img src="/static/GearOptimizer.png" class="header-logo" alt="Gear Optimizer logo">
+            <div class="header-text">
+                <h1>GEAR <span>OPTIMIZER</span></h1>
+                <p class="header-sub" id="header-sub">// Hardware Performance Analyzer</p>
+            </div>
         </div>
+        <button id="theme-toggle" class="theme-toggle">Modern Görünüm</button>
     </header>
 
     <main>
       <div class="content-column">
         <div class="panel">
-            <div class="panel-title">[ SYSTEM CONFIGURATION ]</div>
+            <div class="panel-title" id="config-title">[ SYSTEM CONFIGURATION ]</div>
 
             <div class="alert-box" id="alert-box" hidden></div>
 
             <div class="form-grid">
                 <div class="field">
-                    <label for="cpu-select">&gt; CPU_SELECT:</label>
+                    <label for="cpu-select" id="cpu-label">&gt; CPU_SELECT:</label>
                     <select id="cpu-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label for="gpu-select">&gt; GPU_SELECT:</label>
+                    <label for="gpu-select" id="gpu-label">&gt; GPU_SELECT:</label>
                     <select id="gpu-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label for="ram-select">&gt; RAM_SELECT:</label>
+                    <label for="ram-select" id="ram-label">&gt; RAM_SELECT:</label>
                     <select id="ram-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label for="resolution-select">&gt; RESOLUTION:</label>
+                    <label for="resolution-select" id="resolution-label">&gt; RESOLUTION:</label>
                     <select id="resolution-select"><option value="">-LOADING-</option></select>
                 </div>
 
                 <div class="field">
-                    <label for="purpose-select">&gt; USAGE_PURPOSE:</label>
+                    <label for="purpose-select" id="purpose-label">&gt; USAGE_PURPOSE:</label>
                     <select id="purpose-select">
-                        <option value="gaming_gpu_intensive">-GAMING (GPU AĞIRLIKLI)-</option>
-                        <option value="gaming_cpu_intensive">-GAMING (CPU AĞIRLIKLI)-</option>
-                        <option value="gaming_balanced">-GAMING (DENGELİ)-</option>
-                        <option value="video_editing">-EDITING-</option>
-                        <option value="software_development">-SOFTWARE DEV.-</option>
+                        <option value="gaming_gpu_intensive" data-retro="-GAMING (GPU AĞIRLIKLI)-" data-modern="Gaming (GPU Ağırlıklı)">-GAMING (GPU AĞIRLIKLI)-</option>
+                        <option value="gaming_cpu_intensive" data-retro="-GAMING (CPU AĞIRLIKLI)-" data-modern="Gaming (CPU Ağırlıklı)">-GAMING (CPU AĞIRLIKLI)-</option>
+                        <option value="gaming_balanced" data-retro="-GAMING (DENGELİ)-" data-modern="Gaming (Dengeli)">-GAMING (DENGELİ)-</option>
+                        <option value="video_editing" data-retro="-EDITING-" data-modern="Video Kurgu">-EDITING-</option>
+                        <option value="software_development" data-retro="-SOFTWARE DEV.-" data-modern="Yazılım Geliştirme">-SOFTWARE DEV.-</option>
                     </select>
                 </div>
              </div>
@@ -64,7 +73,7 @@
         </div>
 
         <div class="panel result-panel" id="result" hidden>
-            <div class="panel-title">[ ANALYSIS RESULT ]</div>
+            <div class="panel-title" id="result-title">[ ANALYSIS RESULT ]</div>
 
             <div class="score-line">
                 PERFORMANS SKORU: <span id="score-value">0</span>/100
@@ -94,14 +103,14 @@
         </div>
 
         <div class="panel upgrade-panel" id="upgrade-panel" hidden>
-            <div class="panel-title">[ UPGRADE ADVISOR ]</div>
+            <div class="panel-title" id="upgrade-title">[ UPGRADE ADVISOR ]</div>
             <div class="upgrade-best" id="upgrade-best"></div>
             <div class="upgrade-options" id="upgrade-options"></div>
         </div>
       </div>
 
       <aside class="panel history-panel">
-        <div class="panel-title">[ SON 3 SİSTEM ]</div>
+        <div class="panel-title" id="history-title">[ SON 3 SİSTEM ]</div>
         <div id="history-list" class="history-list">
             <p class="history-empty">Henüz analiz yapılmadı.</p>
         </div>
@@ -110,7 +119,7 @@
     </main>
 
     <footer>
-        <p>// GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL</p>
+        <p id="footer-text">// GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL</p>
      </footer>
 
     <script src="/static/app.js"></script>
