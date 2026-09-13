@@ -6,10 +6,6 @@ from app.services.optimizer_service import OptimizerService
 
 logger = logging.getLogger(__name__)
 
-# Piyasa koşullarına göre elle ayarlanan göreli maliyet çarpanı: bir kategorinin
-# skor kazancı, kategorinin cost_index'ine bölünerek "verimlilik" bulunur.
-# RAM/NAND fiyatları şu an orantısız yüksek olduğu için 1.5 — aynı puan kazancı
-# CPU/GPU'ya göre daha "pahalı" sayılır ve tavsiyede geriye düşer.
 MARKET_COST_INDEX: dict[str, float] = {
     "cpu": 1.0,
     "gpu": 1.0,
