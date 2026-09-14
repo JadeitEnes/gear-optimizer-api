@@ -33,12 +33,12 @@
 
 [data-theme="modern"] {
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    --bg-body: #f4f5f7;
-    --bg-panel: #ffffff;
-    --bg-input: #f9fafb;
-    --border-color: #e3e5ea;
-    --border-panel: #e3e5ea;
-    --border-input: #d7dae1;
+    --bg-body: #f0efe8;
+    --bg-panel: #fdfcf9;
+    --bg-input: #f6f4ef;
+    --border-color: #e5e1d6;
+    --border-panel: #e5e1d6;
+    --border-input: #dcd7c9;
     --radius: 14px;
     --radius-sm: 8px;
     --shadow-panel: 0 1px 3px rgba(17, 24, 39, 0.06), 0 8px 24px rgba(17, 24, 39, 0.04);
@@ -186,6 +186,34 @@ main {
     flex-direction: column;
     gap: 32px;
     min-width: 0;
+}
+
+[data-theme="modern"] main {
+    grid-template-columns: 400px 1fr;
+    grid-template-areas:
+        "config  result"
+        "history result"
+        "history upgrade";
+}
+
+[data-theme="modern"] .content-column {
+    display: contents;
+}
+
+[data-theme="modern"] #config-panel { grid-area: config; }
+[data-theme="modern"] #result { grid-area: result; }
+[data-theme="modern"] #upgrade-panel { grid-area: upgrade; }
+[data-theme="modern"] .history-panel { grid-area: history; }
+
+@media (max-width: 900px) {
+    [data-theme="modern"] main {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "config"
+            "result"
+            "upgrade"
+            "history";
+    }
 }
 
 @media (max-width: 720px) {
