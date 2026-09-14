@@ -411,6 +411,14 @@ function findLabel(list, id, labelFn) {
     return item ? labelFn(item) : "?";
 }
 
+function isSameBuild(a, b) {
+    return a.cpu_id === b.cpu_id
+        && a.gpu_id === b.gpu_id
+        && a.ram_id === b.ram_id
+        && a.resolution_id === b.resolution_id
+        && a.usage_purpose === b.usage_purpose;
+}
+
 function saveToHistory(payload, result) {
     const entry = {
         ...payload,
@@ -420,7 +428,8 @@ function saveToHistory(payload, result) {
         level: result.level,
     };
 
-    const history = [entry, ...getHistory()].slice(0, HISTORY_LIMIT);
+    const remaining = getHistory().filter(existing => !isSameBuild(existing, payload));
+    const history = [entry, ...remaining].slice(0, HISTORY_LIMIT);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     renderHistory();
 }
