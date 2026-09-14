@@ -2,6 +2,7 @@
 
 :root,
 [data-theme="retro"] {
+    color-scheme: dark;
     --font-family: 'Share Tech Mono', monospace;
     --bg-body: rgb(3, 46, 40);
     --bg-panel: rgba(4, 36, 59, 0.8);
@@ -32,9 +33,10 @@
 }
 
 [data-theme="modern"] {
+    color-scheme: light;
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    --bg-body: #f0efe8;
-    --bg-panel: #fdfcf9;
+    --bg-body: #e7e5d9;
+    --bg-panel: #fefdfb;
     --bg-input: #f6f4ef;
     --border-color: #e5e1d6;
     --border-panel: #e5e1d6;
