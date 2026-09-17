@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database.database import get_db
 from app.exceptions import SharedBuildNotFoundError
-from app.schemas.gear_schema import GearInput, GearOutput, UpgradeAdvice, ShareResponse
+from app.schemas.gear_schema import GearInput, GearOutput, UpgradeAdvice, ShareResponse, CompareRequest, BuildComparison
 from app.services.optimizer_service import OptimizerService
 from app.services.upgrade_advisor_service import UpgradeAdvisorService
 from app.services.shared_build_service import SharedBuildService
+from app.services.comparison_service import ComparisonService
 from app.repositories.hardware_repository import HardwareRepository
 from app.repositories.shared_build_repository import SharedBuildRepository
 
@@ -50,3 +51,10 @@ def get_shared_build(slug: str, db: Session = Depends(get_db)) -> GearInput:
         resolution_id=build.resolution_id,
         usage_purpose=build.usage_purpose,
     )
+
+
+@router.post("/compare", response_model=BuildComparison)
+def compare_builds(request: CompareRequest, db: Session = Depends(get_db)) -> BuildComparison:
+    optimizer = OptimizerService(HardwareRepository(db))
+    service = ComparisonService(optimizer)
+    return service.compare(request.build_a, request.build_b)

@@ -76,3 +76,23 @@ class UpgradeAdvice(BaseModel):
 
 class ShareResponse(BaseModel):
     slug: str = Field(..., title="Paylaşım Kodu")
+
+
+class CompareRequest(BaseModel):
+    build_a: GearInput = Field(..., title="Sistem A")
+    build_b: GearInput = Field(..., title="Sistem B")
+
+
+class BuildComparisonSide(BaseModel):
+    result: GearOutput = Field(..., title="Analiz Sonucu")
+
+
+class BuildComparison(BaseModel):
+    build_a: BuildComparisonSide
+    build_b: BuildComparisonSide
+    winner: Literal["a", "b", "tie"] = Field(..., title="Kazanan")
+    score_diff: int = Field(..., title="Puan Farkı")
+    explanation: str = Field(..., title="Açıklama")
+    cpu_winner: Literal["a", "b", "tie"] = Field(..., title="CPU'da Önde Olan")
+    gpu_winner: Literal["a", "b", "tie"] = Field(..., title="GPU'da Önde Olan")
+    ram_winner: Literal["a", "b", "tie"] = Field(..., title="RAM'de Önde Olan")
