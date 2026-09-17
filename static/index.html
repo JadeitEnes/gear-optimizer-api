@@ -70,6 +70,49 @@
              </div>
 
             <button id="analyze-btn">&gt; RUN ANALYSIS [ ENTER ]</button>
+
+            <div class="compare-trigger-row">
+                <button id="compare-toggle-btn" class="compare-toggle-btn" type="button">&gt; KARŞILAŞTIR</button>
+            </div>
+        </div>
+
+        <div class="panel compare-config-panel" id="compare-config-panel" hidden>
+            <div class="panel-title" id="compare-config-title">[ SİSTEM B ]</div>
+
+            <div class="form-grid">
+                <div class="field">
+                    <label for="cpu-select-b" id="cpu-label-b">&gt; CPU_SELECT:</label>
+                    <select id="cpu-select-b"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="gpu-select-b" id="gpu-label-b">&gt; GPU_SELECT:</label>
+                    <select id="gpu-select-b"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="ram-select-b" id="ram-label-b">&gt; RAM_SELECT:</label>
+                    <select id="ram-select-b"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="resolution-select-b" id="resolution-label-b">&gt; RESOLUTION:</label>
+                    <select id="resolution-select-b"><option value="">-LOADING-</option></select>
+                </div>
+
+                <div class="field">
+                    <label for="purpose-select-b" id="purpose-label-b">&gt; USAGE_PURPOSE:</label>
+                    <select id="purpose-select-b">
+                        <option value="gaming_gpu_intensive" data-retro="-GAMING (GPU AĞIRLIKLI)-" data-modern="Gaming (GPU Ağırlıklı)">-GAMING (GPU AĞIRLIKLI)-</option>
+                        <option value="gaming_cpu_intensive" data-retro="-GAMING (CPU AĞIRLIKLI)-" data-modern="Gaming (CPU Ağırlıklı)">-GAMING (CPU AĞIRLIKLI)-</option>
+                        <option value="gaming_balanced" data-retro="-GAMING (DENGELİ)-" data-modern="Gaming (Dengeli)">-GAMING (DENGELİ)-</option>
+                        <option value="video_editing" data-retro="-EDITING-" data-modern="Video Kurgu">-EDITING-</option>
+                        <option value="software_development" data-retro="-SOFTWARE DEV.-" data-modern="Yazılım Geliştirme">-SOFTWARE DEV.-</option>
+                    </select>
+                </div>
+             </div>
+
+            <button id="run-compare-btn">&gt; SİSTEMLERİ KIYASLA</button>
         </div>
 
         <div class="panel result-panel" id="result" hidden>
@@ -106,6 +149,28 @@
             <div class="panel-title" id="upgrade-title">[ UPGRADE ADVISOR ]</div>
             <div class="upgrade-best" id="upgrade-best"></div>
             <div class="upgrade-options" id="upgrade-options"></div>
+        </div>
+
+        <div class="panel compare-result-panel" id="compare-result-panel" hidden>
+            <div class="panel-title" id="compare-result-title">[ KARŞILAŞTIRMA SONUCU ]</div>
+            <div class="compare-explanation" id="compare-explanation"></div>
+
+            <div class="compare-sides">
+                <div class="compare-side">
+                    <div class="compare-side-label">Sistem A</div>
+                    <div class="compare-side-score" id="compare-side-a-score"></div>
+                    <div class="bottleneck-box" id="compare-side-a-bottleneck"></div>
+                    <div class="breakdown" id="compare-side-a-breakdown"></div>
+                </div>
+                <div class="compare-side">
+                    <div class="compare-side-label">Sistem B</div>
+                    <div class="compare-side-score" id="compare-side-b-score"></div>
+                    <div class="bottleneck-box" id="compare-side-b-bottleneck"></div>
+                    <div class="breakdown" id="compare-side-b-breakdown"></div>
+                </div>
+            </div>
+
+            <div class="compare-table" id="compare-table"></div>
         </div>
       </div>
 

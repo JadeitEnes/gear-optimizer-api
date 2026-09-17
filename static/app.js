@@ -4,6 +4,7 @@ const HISTORY_LIMIT = 3;
 const THEME_KEY = "gearoptimizer_theme";
 
 const SELECT_IDS = ["cpu-select", "gpu-select", "ram-select", "resolution-select"];
+const SELECT_IDS_B = ["cpu-select-b", "gpu-select-b", "ram-select-b", "resolution-select-b"];
 
 const THEME_LABELS = {
     headerSub: { retro: "// Hardware Performance Analyzer", modern: "Hardware Performance Analyzer" },
@@ -25,6 +26,12 @@ const THEME_LABELS = {
     historyTitle: { retro: "[ SON 3 SİSTEM ]", modern: "Son 3 Sistem" },
     historyClear: { retro: "> GEÇMİŞİ TEMİZLE", modern: "Geçmişi Temizle" },
     footer: { retro: "// GEAR OPTIMIZER © 2026 — jadeIT — ALL SYSTEMS OPERATIONAL", modern: "Gear Optimizer © 2026 — jadeIT" },
+    compareToggleShow: { retro: "> KARŞILAŞTIR", modern: "Karşılaştır" },
+    compareToggleHide: { retro: "> KARŞILAŞTIRMAYI GİZLE", modern: "Karşılaştırmayı Gizle" },
+    compareConfigTitle: { retro: "[ SİSTEM B ]", modern: "Sistem B" },
+    compareIdle: { retro: "> ANALİZ ET VE KIYASLA", modern: "Analiz Et ve Kıyasla" },
+    compareBusy: { retro: "> ANALİZ EDİLİYOR...", modern: "Analiz ediliyor..." },
+    compareResultTitle: { retro: "[ KARŞILAŞTIRMA SONUCU ]", modern: "Karşılaştırma Sonucu" },
 };
 
 let hardwareData = { cpus: [], gpus: [], rams: [], resolutions: [] };
@@ -39,6 +46,8 @@ window.addEventListener("load", async () => {
     document.getElementById("history-clear-btn").addEventListener("click", clearHistory);
     document.getElementById("share-btn").addEventListener("click", shareResult);
     document.getElementById("share-copy-btn").addEventListener("click", copyShareUrl);
+    document.getElementById("compare-toggle-btn").addEventListener("click", toggleCompare);
+    document.getElementById("run-compare-btn").addEventListener("click", runComparison);
 
     await loadFromShareLink();
 });
@@ -72,7 +81,22 @@ function applyStaticLabels() {
 
     document.getElementById("share-copy-btn").textContent = THEME_LABELS.copyIdle[theme];
 
-    document.querySelectorAll("#purpose-select option[data-retro]").forEach(option => {
+    document.getElementById("cpu-label-b").textContent = THEME_LABELS.cpuLabel[theme];
+    document.getElementById("gpu-label-b").textContent = THEME_LABELS.gpuLabel[theme];
+    document.getElementById("ram-label-b").textContent = THEME_LABELS.ramLabel[theme];
+    document.getElementById("resolution-label-b").textContent = THEME_LABELS.resolutionLabel[theme];
+    document.getElementById("purpose-label-b").textContent = THEME_LABELS.purposeLabel[theme];
+    document.getElementById("compare-config-title").textContent = THEME_LABELS.compareConfigTitle[theme];
+    document.getElementById("compare-result-title").textContent = THEME_LABELS.compareResultTitle[theme];
+
+    const compareToggleBtn = document.getElementById("compare-toggle-btn");
+    const compareConfigHidden = document.getElementById("compare-config-panel").hidden;
+    compareToggleBtn.textContent = (compareConfigHidden ? THEME_LABELS.compareToggleShow : THEME_LABELS.compareToggleHide)[theme];
+
+    const runCompareBtn = document.getElementById("run-compare-btn");
+    if (!runCompareBtn.disabled) runCompareBtn.textContent = THEME_LABELS.compareIdle[theme];
+
+    document.querySelectorAll("#purpose-select option[data-retro], #purpose-select-b option[data-retro]").forEach(option => {
         option.textContent = theme === "modern" ? option.dataset.modern : option.dataset.retro;
     });
 }
@@ -106,8 +130,12 @@ function clearAlert() {
 
 function setFormEnabled(enabled) {
     document.getElementById("analyze-btn").disabled = !enabled;
+    document.getElementById("compare-toggle-btn").disabled = !enabled;
+    document.getElementById("run-compare-btn").disabled = !enabled;
     SELECT_IDS.forEach(id => { document.getElementById(id).disabled = !enabled; });
+    SELECT_IDS_B.forEach(id => { document.getElementById(id).disabled = !enabled; });
     document.getElementById("purpose-select").disabled = !enabled;
+    document.getElementById("purpose-select-b").disabled = !enabled;
 }
 
 async function loadHardwareOptions() {
@@ -130,11 +158,16 @@ async function loadHardwareOptions() {
         populateSelect("ram-select", rams, r => `${r.capacity_gb}GB - (${r.speed_mhz} MHz)`);
         populateSelect("resolution-select", resolutions, r => r.name);
 
+        populateSelect("cpu-select-b", cpus, c => `${c.brand} ${c.model} (${c.cores} Core)`);
+        populateSelect("gpu-select-b", gpus, g => `${g.brand} ${g.model} (${g.vram_gb} GB)`);
+        populateSelect("ram-select-b", rams, r => `${r.capacity_gb}GB - (${r.speed_mhz} MHz)`);
+        populateSelect("resolution-select-b", resolutions, r => r.name);
+
         clearAlert();
         setFormEnabled(true);
     } catch (err) {
         console.error("Hardware data load failed:", err);
-        SELECT_IDS.forEach(id => {
+        [...SELECT_IDS, ...SELECT_IDS_B].forEach(id => {
             document.getElementById(id).innerHTML = `<option value="">-YÜKLENEMEDİ-</option>`;
         });
         setFormEnabled(false);
@@ -149,14 +182,18 @@ function populateSelect(id, items, labelFn) {
         .join("");
 }
 
-function currentGearPayload() {
+function gearPayload(suffix) {
     return {
-        cpu_id: parseInt(document.getElementById("cpu-select").value),
-        gpu_id: parseInt(document.getElementById("gpu-select").value),
-        ram_id: parseInt(document.getElementById("ram-select").value),
-        resolution_id: parseInt(document.getElementById("resolution-select").value),
-        usage_purpose: document.getElementById("purpose-select").value,
+        cpu_id: parseInt(document.getElementById(`cpu-select${suffix}`).value),
+        gpu_id: parseInt(document.getElementById(`gpu-select${suffix}`).value),
+        ram_id: parseInt(document.getElementById(`ram-select${suffix}`).value),
+        resolution_id: parseInt(document.getElementById(`resolution-select${suffix}`).value),
+        usage_purpose: document.getElementById(`purpose-select${suffix}`).value,
     };
+}
+
+function currentGearPayload() {
+    return gearPayload("");
 }
 
 function applyGearToForm(gear) {
@@ -212,6 +249,7 @@ async function runAnalysis() {
         document.getElementById("result").hidden = true;
         document.getElementById("upgrade-panel").hidden = true;
         document.getElementById("share-row").hidden = true;
+        document.getElementById("compare-result-panel").hidden = true;
         showAlert(err.message || "Analiz başarısız oldu, tekrar dene.");
     } finally {
         btn.textContent = THEME_LABELS.analyzeIdle[currentTheme()];
@@ -237,12 +275,13 @@ function showResult(data) {
     document.getElementById("score-value").textContent = data.score;
     document.getElementById("score-level").textContent = data.level;
     document.getElementById("advice").textContent = data.advice;
-    document.getElementById("bottleneck").textContent = detail.bottleneck;
+    applyBottleneckStyle(document.getElementById("bottleneck"), detail);
 
     renderBreakdown(detail);
     renderResolutionNote(detail);
 
     document.getElementById("share-row").hidden = true;
+    document.getElementById("compare-result-panel").hidden = true;
     result.hidden = false;
     result.scrollIntoView({ behavior: "smooth" });
 }
@@ -312,7 +351,124 @@ async function loadFromShareLink() {
     }
 }
 
-function renderBreakdown(detail) {
+function toggleCompare() {
+    const panel = document.getElementById("compare-config-panel");
+    panel.hidden = !panel.hidden;
+    document.documentElement.toggleAttribute("data-compare-open", !panel.hidden);
+    document.getElementById("compare-toggle-btn").textContent =
+        (panel.hidden ? THEME_LABELS.compareToggleShow : THEME_LABELS.compareToggleHide)[currentTheme()];
+}
+
+async function runComparison() {
+    const btn = document.getElementById("run-compare-btn");
+    const buildA = currentGearPayload();
+    const buildB = gearPayload("-b");
+
+    if (Object.values(buildA).some(value => Number.isNaN(value)) || Object.values(buildB).some(value => Number.isNaN(value))) {
+        showAlert("Karşılaştırma için her iki sistemin de tüm alanlarını seç.");
+        return;
+    }
+
+    clearAlert();
+    btn.disabled = true;
+    btn.textContent = THEME_LABELS.compareBusy[currentTheme()];
+
+    try {
+        const response = await fetch(`${API_BASE}/optimizer/compare`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ build_a: buildA, build_b: buildB }),
+        });
+
+        if (!response.ok) throw new Error(await readErrorMessage(response));
+
+        showComparisonResult(await response.json());
+    } catch (err) {
+        console.error("Comparison failed:", err);
+        document.getElementById("compare-result-panel").hidden = true;
+        showAlert(err.message || "Karşılaştırma başarısız oldu, tekrar dene.");
+    } finally {
+        btn.disabled = false;
+        btn.textContent = THEME_LABELS.compareIdle[currentTheme()];
+    }
+}
+
+function showComparisonResult(comparison) {
+    document.getElementById("compare-explanation").textContent = comparison.explanation;
+
+    renderCompareSide("a", comparison.build_a.result);
+    renderCompareSide("b", comparison.build_b.result);
+
+    document.getElementById("compare-table").innerHTML = renderCompareTable(comparison);
+
+    document.getElementById("upgrade-panel").hidden = true;
+    document.getElementById("share-row").hidden = true;
+
+    const panel = document.getElementById("compare-result-panel");
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth" });
+}
+
+function renderCompareSide(side, result) {
+    document.getElementById(`compare-side-${side}-score`).textContent = `${result.score}/100 — ${result.level}`;
+    applyBottleneckStyle(document.getElementById(`compare-side-${side}-bottleneck`), result.detail);
+    document.getElementById(`compare-side-${side}-breakdown`).innerHTML = buildBreakdownHtml(result.detail);
+}
+
+function applyBottleneckStyle(el, detail) {
+    el.textContent = detail.bottleneck;
+    el.classList.toggle("bottleneck-ok", !detail.has_bottleneck);
+}
+
+function renderCompareTable(comparison) {
+    const detailA = comparison.build_a.result.detail;
+    const detailB = comparison.build_b.result.detail;
+
+    const rows = [
+        {
+            label: "CPU",
+            a: `${detailA.cpu} (${detailA.cpu_score})`,
+            b: `${detailB.cpu} (${detailB.cpu_score})`,
+            winner: comparison.cpu_winner,
+        },
+        {
+            label: "GPU",
+            a: `${detailA.gpu} (${detailA.gpu_score_adjusted})`,
+            b: `${detailB.gpu} (${detailB.gpu_score_adjusted})`,
+            winner: comparison.gpu_winner,
+        },
+        {
+            label: "RAM",
+            a: `${detailA.ram} (${detailA.ram_score})`,
+            b: `${detailB.ram} (${detailB.ram_score})`,
+            winner: comparison.ram_winner,
+        },
+    ];
+
+    const rowsHtml = rows.map(row => `
+        <div class="compare-row">
+            <span class="compare-row-label">${row.label}</span>
+            <span class="compare-cell${row.winner === "a" ? " compare-winner" : ""}">${escapeHtml(row.a)}</span>
+            <span class="compare-cell${row.winner === "b" ? " compare-winner" : ""}">${escapeHtml(row.b)}</span>
+        </div>
+    `).join("");
+
+    return `
+        <div class="compare-header">
+            <span></span>
+            <span>Sistem A</span>
+            <span>Sistem B</span>
+        </div>
+        ${rowsHtml}
+        <div class="compare-row compare-row-total">
+            <span class="compare-row-label">TOPLAM</span>
+            <span class="compare-cell${comparison.winner === "a" ? " compare-winner" : ""}">${comparison.build_a.result.score}/100</span>
+            <span class="compare-cell${comparison.winner === "b" ? " compare-winner" : ""}">${comparison.build_b.result.score}/100</span>
+        </div>
+    `;
+}
+
+function buildBreakdownHtml(detail) {
     const rows = [
         {
             label: "CPU",
@@ -334,7 +490,7 @@ function renderBreakdown(detail) {
         },
     ];
 
-    document.getElementById("breakdown").innerHTML = rows.map(row => {
+    return rows.map(row => {
         const contribution = (row.score * row.weight).toFixed(1);
         const percent = Math.min(row.score, 100);
         return `
@@ -352,6 +508,10 @@ function renderBreakdown(detail) {
             </div>
         `;
     }).join("");
+}
+
+function renderBreakdown(detail) {
+    document.getElementById("breakdown").innerHTML = buildBreakdownHtml(detail);
 }
 
 function renderResolutionNote(detail) {
