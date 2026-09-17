@@ -50,24 +50,28 @@ def test_weak_cpu_is_reported_as_bottleneck(db_session):
     result = _analyze(db_session, cpu_id=2, gpu_id=1)
 
     assert "darboğazın CPU" in result.detail["bottleneck"]
+    assert result.detail["has_bottleneck"] is True
 
 
 def test_weak_gpu_is_reported_as_bottleneck(db_session):
     result = _analyze(db_session, cpu_id=1, gpu_id=2)
 
     assert "darboğazın GPU" in result.detail["bottleneck"]
+    assert result.detail["has_bottleneck"] is True
 
 
 def test_balanced_build_reports_no_bottleneck(db_session):
     result = _analyze(db_session, cpu_id=1, gpu_id=1, resolution_id=1)
 
     assert "belirgin bir darboğaz yok" in result.detail["bottleneck"]
+    assert result.detail["has_bottleneck"] is False
 
 
 def test_bottleneck_skipped_when_component_barely_weighted(db_session):
     result = _analyze(db_session, usage_purpose=UsagePurpose.SOFTWARE_DEVELOPMENT)
 
     assert "anlamlı değil" in result.detail["bottleneck"]
+    assert result.detail["has_bottleneck"] is False
 
 
 @pytest.mark.parametrize(

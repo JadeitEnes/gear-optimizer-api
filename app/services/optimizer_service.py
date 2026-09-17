@@ -45,7 +45,7 @@ class OptimizerService:
         )
         level = self._calculate_level(total_score)
         advice = USAGE_ADVICE[gear.usage_purpose]
-        bottleneck = self._detect_bottleneck(cpu.score, gpu_score_adjusted, weights)
+        bottleneck, has_bottleneck = self._detect_bottleneck(cpu.score, gpu_score_adjusted, weights)
 
         logger.info(
             f"Analysis complete - score={total_score}, level={level},"
@@ -70,6 +70,7 @@ class OptimizerService:
                 "resolution": resolution.name,
                 "demand_multiplier": resolution.demand_multiplier,
                 "bottleneck": bottleneck,
+                "has_bottleneck": has_bottleneck,
             }
         )
     def _validate_component(self, cpu, gpu, ram, resolution) -> None:
@@ -89,12 +90,12 @@ class OptimizerService:
         if score >= 40: return "Orta Seviye"
         return "Giriş Seviye"
 
-    def _detect_bottleneck(self, cpu_score: int, gpu_score_adjusted: int, weights: dict) -> str:
+    def _detect_bottleneck(self, cpu_score: int, gpu_score_adjusted: int, weights: dict) -> tuple[str, bool]:
         if weights["cpu"] < 0.15 or weights["gpu"] < 0.15:
-            return "Bu profilde darboğaz analizi anlamlı değil (bileşenlerden biri zaten neredeyse etkisiz)."
+            return "Bu profilde darboğaz analizi anlamlı değil (bileşenlerden biri zaten neredeyse etkisiz).", False
         diff = cpu_score - gpu_score_adjusted
         if diff > 15:
-            return f"GPU'n CPU'nun gerisinde kalıyor (CPU {cpu_score} / GPU {gpu_score_adjusted}) — darboğazın GPU."
+            return f"GPU'n CPU'nun gerisinde kalıyor (CPU {cpu_score} / GPU {gpu_score_adjusted}) — darboğazın GPU.", True
         if diff < -15:
-            return f"CPU'n GPU'nun gerisinde kalıyor (CPU {cpu_score} / GPU {gpu_score_adjusted}) — darboğazın CPU."
-        return f"CPU ({cpu_score}) ve GPU ({gpu_score_adjusted}) skorların dengeli, belirgin bir darboğaz yok."
+            return f"CPU'n GPU'nun gerisinde kalıyor (CPU {cpu_score} / GPU {gpu_score_adjusted}) — darboğazın CPU.", True
+        return f"CPU ({cpu_score}) ve GPU ({gpu_score_adjusted}) skorların dengeli, belirgin bir darboğaz yok.", False
