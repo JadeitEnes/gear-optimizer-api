@@ -94,3 +94,26 @@ def test_share_unknown_slug_returns_404(client):
     response = client.get("/optimizer/share/not-a-real-slug")
 
     assert response.status_code == 404
+
+
+def test_compare_returns_both_sides_and_a_winner(client):
+    response = client.post("/optimizer/compare", json={
+        "build_a": {**VALID_PAYLOAD, "cpu_id": 3, "gpu_id": 3, "ram_id": 2},
+        "build_b": {**VALID_PAYLOAD, "cpu_id": 2, "gpu_id": 2, "ram_id": 1},
+    })
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["winner"] == "a"
+    assert body["build_a"]["result"]["score"] > body["build_b"]["result"]["score"]
+    assert body["build_a"]["result"]["detail"]["bottleneck"]
+    assert body["explanation"]
+
+
+def test_compare_unknown_component_returns_404(client):
+    response = client.post("/optimizer/compare", json={
+        "build_a": VALID_PAYLOAD,
+        "build_b": {**VALID_PAYLOAD, "cpu_id": 999},
+    })
+
+    assert response.status_code == 404
